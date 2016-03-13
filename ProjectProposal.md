@@ -18,6 +18,7 @@ We outputs a message on screen telling that he she can choose the countries by s
 For the years we will tell the user that we have subcription data of countries starting from 1960-2012. So, user can choose which year's data to be graphed for a more detailed analysis.
 
 The name of the classes you will use to implement the interactions: 
-CursorDataPoint and UIMenu. 
+CursorDataPoint, CountryMenu, and YearMenu. 
 CursorDataPoint that will implement MouseListener and when a data point on the graph will be clicked it will show the x and y value of those data points.
-UIMenu that will implement MouseListener and have a drop down checklist for names of countries  and years to be graphed.
+CountryMenu and YearMenu will implement MouseListener and have a drop down checklist for names of countries  and years to be graphed.
+
