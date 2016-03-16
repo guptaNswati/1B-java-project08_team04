@@ -3,91 +3,16 @@ package project08_team04;
  * @author Team04
  * @Class [Maps the cellular data of a country to the width and height of the panel]
  */
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.Iterator;
-
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
 
-//add it in graphView and call update() in paint component
-class MousePlay 
-{
-     JLabel label;
-    Point clickPoint, cursorPoint;
-    
-    MousePlay()
-    {
-//        this.clickPoint = new Point();
-        label = new JLabel();
-        resetLabel();        
-    }
-    
-    public void updateCursorLocation(int x, int y)
-    {
-        if (x < 0 || y < 0) 
-        {
-            cursorPoint = null;
-            updateLabel();
-            return;
-        }
-            
-        if (cursorPoint == null) 
-        {
-            cursorPoint = new Point();
-        }
-        
-        cursorPoint.x = x;
-        cursorPoint.y = y;
-        updateLabel();
-    }
-
-    public void updateClickPoint(Point p) 
-    {
-        clickPoint = p;
-        updateLabel();
-    }
-    
-    public void resetLabel()
-    {
-        clickPoint = null;
-        updateLabel();
-    }
-    
-    protected void updateLabel() 
-    {
-        String text = "";
-
-        if ((clickPoint == null) && (cursorPoint == null)) 
-        {
-            text = "Click or move the cursor within the framed area.";
-        } else 
-        {
-            
-            if (clickPoint != null) 
-            {
-                text += "The last click was at (" 
-                        + clickPoint.x + ", " + clickPoint.y + "). ";
-            }
-            
-            if (cursorPoint != null) 
-            {
-                text += "The cursor is at ("
-                        + cursorPoint.x + ", " + cursorPoint.y + "). ";
-            }
-        }
-        
-        label.setText(text);
-    }   
-}
-
-// try by making a point attribute in gv
 public class GraphView extends JPanel implements MouseInputListener
 {
     /**
@@ -129,6 +54,8 @@ public class GraphView extends JPanel implements MouseInputListener
     private LinkedList<Legend> listOfLegends;
     
     Point point = null;
+    
+    private JLabel label;
 
     /**
      * constructs an object on GraphView that creates a graph of the country data
@@ -227,18 +154,14 @@ public class GraphView extends JPanel implements MouseInputListener
             this.listOfLegends.add(legendKey);       
 
             counter_1++;
-        }
-        
+        }        
+        label = new JLabel();       
     }
 
     public LinkedList<PlottedDataSet> getListOfCountryDataPoints() { return this.listOfCountryDataPoints; }  
 
     public LinkedList<Legend> getListOfLegends() { return listOfLegends; }  
 
-    public MousePlay mousePlay() 
-    {
-        return new MousePlay();
-    }
     /**
      *  map the data to the available space of the screen
      * @param value [Type: double, original data values of x and y ]
@@ -253,6 +176,26 @@ public class GraphView extends JPanel implements MouseInputListener
         return plottedMin + (plottedMax - plottedMin) * ((value - dataMin) / (dataMax- dataMin));
     }
 
+    public void mouseClicked(MouseEvent e) 
+    { 
+        int x = e.getX();
+        int y = e.getY();
+        
+        if (point == null) 
+        {
+            point = new Point(x, y);
+        }
+        else       
+        this.updatePoint(x, y);
+        this.repaint();
+    }
+    
+    public void updatePoint(int x, int y) 
+    {
+        point.x = x;
+        point.y = y;
+    }
+       
     /**
      * First draws the x-axis and y-axis, names them
      * then draws the points and their values
@@ -268,13 +211,12 @@ public class GraphView extends JPanel implements MouseInputListener
         int lastY = this.plottedYmin - MARGIN;       
 
         // draws horizontal line and names it
-        g2d.drawLine(firstX, lastY, firstX, firstY);       
+        g2d.drawLine(firstX, lastY, firstX, firstY);         
         g2d.drawString("Year", lastX,lastY);
 
         // draws vertical line and names it
         g2d.drawLine(firstX, lastY, lastX, lastY);       
         g2d.drawString("Number of Subscriptions (per 100 people)",firstY - 25, firstX + 20);
-
 
         Iterator<PlottedDataSet> iterator_P =  this.listOfCountryDataPoints.iterator();
 
@@ -293,102 +235,19 @@ public class GraphView extends JPanel implements MouseInputListener
                         (int)currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getY(), 
                         POINT_SIZE, POINT_SIZE);
                 
-                if (this.mousePlay().clickPoint != null || this.mousePlay().cursorPoint != null)
-                {
-                    if (this.mousePlay().clickPoint.getX() == currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getMappedX())
-                    {
-                    
-                        this.mousePlay().label.setText(currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getLabel());
+                if (this.point != null)
+                {                    
+                    if ((Math.abs(this.point.getX() - currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getMappedX()) < 6))
+                    {                    
+                        this.label.setText(currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getLabel());    
+                        this.label.setLocation((int)this.point.getX(), (int)this.point.getY());
                     }
-////                    this.add(this.mousePlay().label);
-//                    g2d.drawString("( )", (int) this.mousePlay().clickPoint.getX(), (int)this.mousePlay().clickPoint.getX());
-                }
-
-//                int mappedX = currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getMappedX();
-//                int mappedY = currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getMappedY();
-//                int difference = point.x - mappedX;
-//                
-//                if (this.point.getX() == currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getX())
-//                  {
-//                    g2d.drawString(currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getLabel(), 
-//                                   (int)currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getX(), 
-//                                   (int)currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getY());                 
-                  }
-
-                // add mouse listener here to click the point
-//                               g2d.drawString(currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getLabel(), 
-//                                   (int)currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getX(), 
-//                                   (int)currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getY()); 
-                
-                           
-            }        
-
-        
-}
-    
-
-    public void mouseClicked(MouseEvent e) 
-    { 
-        int x = e.getX();
-        int y = e.getY();
-        
-        if (point == null) 
-        {
-            point = new Point(x, y);
-        } else {
-            point.x = x;
-            point.y = y;
-        }
-        this.mousePlay().updateClickPoint(point);
-    }
-    
-
-//    @Override
-//    public void mouseClicked(MouseEvent e)
-//    {
-//        boolean state = false;
-//        
-//        Iterator<PlottedDataSet> iterator_P =  this.listOfCountryDataPoints.iterator();
-//
-//        PlottedDataSet currentDataPoints;
-//
-//        // generating the colored point for each data value
-//        while(iterator_P.hasNext())
-//        {
-//            currentDataPoints = iterator_P.next();
-//
-//            for (int i = 0; i < currentDataPoints.getDataPoints().size(); i++)
-//            {      
-//                int mappedX = currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getMappedX();
-//                int mappedY = currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getMappedY();
-//                int difference = e.getX() - mappedX;
-//
-//                if (Math.abs(difference) < 6)
-//                {
-//                    state = true;
-//                    
-//                    System.out.println("mappedX is " + mappedX);
-//                    System.out.println("mappedY is " + mappedY);
-//                    
-////                    int xValue = (int) currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getOriginalX();
-////                    int yValue = (int) currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getOriginalY();
-//                    this.mousePlay().clickPoint.x = currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getMappedX();
-//                    this.mousePlay().clickPoint.y = currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getMappedY();                  
-//                   
-//                }                 
-//            }
-//        }
-//        System.out.println("click value of x " + this.mousePlay().clickPoint.x);
-//        System.out.println("click value of y " + this.mousePlay().clickPoint.y);        
-//        this.mousePlay().updateClickPoint(this.mousePlay().clickPoint);        
-//    }
-
-    public void mouseMoved(MouseEvent e)
-    {
-        // TODO Auto-generated method stub
-        this.mousePlay().updateCursorLocation(e.getX(), e.getY());
-    }
-    
+                    add(label);
+                }                           
+            }  
+        }        
+     }
+    public void mouseMoved(MouseEvent e) { }
     public void mousePressed(MouseEvent e) { }
     public void mouseReleased(MouseEvent e) { } 
     public void mouseEntered(MouseEvent e) { }
