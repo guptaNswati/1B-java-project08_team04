@@ -29,6 +29,7 @@ public class YearMenu extends JPanel implements ItemListener{
 		if(evt.getStateChange()==ItemEvent.SELECTED){
 			selectedYear = (Integer) year_menu.getSelectedItem();
 		}
+		System.out.println(selectedYear);
 		
 	}
 	
