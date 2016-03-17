@@ -7,7 +7,7 @@ import javax.swing.JCheckBoxMenuItem;
 /**
  * One item of class CountryMenuItem contains the name of a country and a boolean variable
  * that determines the state of the  CountryMenuItem
- * @author Shiva
+ * @author Team04
  */
 
 public class CountryMenuItem extends JCheckBoxMenuItem {

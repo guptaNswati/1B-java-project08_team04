@@ -15,20 +15,25 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.text.html.HTMLDocument.Iterator;
+/**
+ * Tests the User Interface by creating objects of type GraphView,
+ * LegendPanel, and countryMenuItem.
+ * @author Team04
+ */
 
 public class TestUI implements ActionListener, ItemListener {
 
-	int minYear;
-	int maxYear;
-	LinkedList<Country>checkedCountries = new LinkedList<Country>();
-	LinkedList<Country>graphViewCountries = new LinkedList<Country>();
-	LinkedList<Country>allCountries = new LinkedList<Country>();
-	 
+	LinkedList<Country> graphViewCountries = new LinkedList<Country>();
+	LinkedList<Country> allCountries = new LinkedList<Country>();
+
+	/**
+	 * Reads from CSV file and parses the data
+	 * @param args
+	 */
 	public static void main(String[] args) {
 
 		// Reads data from CSV file and parses it
-		final String FILENAME = "resources\\cellular.csv";
+		final String FILENAME = "resources/cellular.csv";
 		CSVReader parser = new CSVReader(FILENAME);
 		String[] countryNames = parser.getCountryNames();
 		int[] yearLabels = parser.getYearLabels();
@@ -53,116 +58,86 @@ public class TestUI implements ActionListener, ItemListener {
 				current.addSubscriptionYear(yearLabels[yearIndex], countryData);
 			}
 			countries[countryIndex] = current;
-		} 
-		
+		}
+
 		TestUI application = new TestUI();
 		application.buildCountryList(countries);
 		application.createUI();
-		
-} //END OF MAIN
-	
-		
-	public void buildCountryList(Country[] countries){
-			for (int index = 0; index < countries.length; index++) {
+
+	}
+
+	/**
+	 * Creates a LinkedList of Countries
+	 * 
+	 * @param countries
+	 *            Array of country Objects
+	 */
+	public void buildCountryList(Country[] countries) {
+		for (int index = 0; index < countries.length; index++) {
 			this.allCountries.add(countries[index]);
 		}
-	
-	
-} //END OF BUILD LIST METHOD
 
-	
-		public void createUI(){
-		
-		// Creates the UI
+	}
+
+	/**
+	 * Creates a UI panel that displays a scrollable list of Checkboxes with
+	 * countryNames and a graph button that redirects the user to the GraphView
+	 * Panel
+	 */
+	public void createUI() {
 		JFrame UI_menu = new JFrame();
 		UI_menu.setTitle("Graph Settings");
 		UI_menu.setLayout(new BorderLayout());
-		UI_menu.setSize(600, 600);
+		UI_menu.setSize(400, 600);
 
-		
-		 
-		JPanel yearMenuPanel = new JPanel();
-		yearMenuPanel.setLayout(new BoxLayout(yearMenuPanel, BoxLayout.Y_AXIS));
-		yearMenuPanel.setSize(new Dimension(300, 600));
-		JLabel promptLabel = new JLabel("Select range of years");
-		yearMenuPanel.add(promptLabel);
-
-		JPanel startingYearPanel = new JPanel();
-		startingYearPanel.setSize(new Dimension(300,300));
-		JTextField startingYearField = new JTextField(10);
-		JLabel startYearPrompt = new JLabel("Enter starting year");
-		startingYearPanel.add(startYearPrompt);
-		startingYearPanel.add(startingYearField);
-		
-		
-
-		JPanel endingYearPanel = new JPanel();
-		endingYearPanel.setSize(new Dimension(300,600));
-		JTextField endingYearField = new JTextField(10);
-		JLabel endYearPrompt = new JLabel("Enter ending year");
-		endingYearPanel.add(endYearPrompt);
-		endingYearPanel.add(endingYearField);
-		
-		yearMenuPanel.add(startingYearPanel);
-		yearMenuPanel.add(endingYearPanel);
-		
-		
-
-		UI_menu.add(yearMenuPanel);
-		
-		
 		JPanel countryMenuPanel = new JPanel();
-		countryMenuPanel.setSize(new Dimension(300,600));
+		countryMenuPanel.setSize(new Dimension(300, 500));
 		countryMenuPanel.setLayout(new BoxLayout(countryMenuPanel, BoxLayout.Y_AXIS));
-		JLabel countryPrompt = new JLabel("Select countries to graph ");
-		for(int index = 0; index < allCountries.size(); index++){
-			CountryMenuItem newItem = new CountryMenuItem(allCountries.getNodeAtIndex(index).getData().getName(),false);
+		JLabel countryPrompt = new JLabel("Select countries, then click the graph button");
+		countryMenuPanel.add(countryPrompt);
+		for (int index = 0; index < allCountries.size(); index++) {
+			CountryMenuItem newItem = new CountryMenuItem(allCountries.getNodeAtIndex(index).getData().getName(),
+					false);
 			newItem.addItemListener(this);
 			countryMenuPanel.add(newItem);
 		}
-		
-		JScrollPane Scroller = new JScrollPane(countryMenuPanel);
-		Scroller.setPreferredSize(new Dimension(300, 500));
-		Scroller.add(countryPrompt);
-		UI_menu.add(Scroller, BorderLayout.WEST);
 
 		JButton graphButton = new JButton("Graph");
 		graphButton.setPreferredSize(new Dimension(20, 25));
 		graphButton.addActionListener(this);
-		yearMenuPanel.add(graphButton);
+
+		countryMenuPanel.add(graphButton);
+		JScrollPane Scroller = new JScrollPane(countryMenuPanel);
+		Scroller.setPreferredSize(new Dimension(300, 500));
+		UI_menu.add(Scroller);
 
 		UI_menu.setVisible(true);
 
-		minYear = 1960;
-		maxYear = 2012;
-		
-		
-		
-	} //END OF CREATE GUI METHOD
-		
-		public void itemStateChanged(ItemEvent evt) {
-			if(evt.getSource() instanceof CountryMenuItem){
-				CountryMenuItem selectedItem = (CountryMenuItem)evt.getSource();
-				 	selectedItem.setSelected(true);				    
-				    if(selectedItem.isSelected()==true){
-				   this.checkedCountries.add(new Country(selectedItem.getName()));
-				    
-				}
-				    Country selectedCountry;
-				   Iterator<Country> c_iterator = checkedCountries.iterator();
-				    
-				    while(c_iterator)
-				    {
-				    	selectedCountry = c_iterator.next();
-				    	
-				    	Country foundCountry = this.allCountries.contains(selectedCountry);						
-						this.graphViewCountries.add(foundCountry);
-					}				    
-			}			
+	}
+
+	/**
+	 * Invoked when an item is selected by the user. Gets the selected item and
+	 * adds it to a new LinkedList of country objects
+	 */
+
+	public void itemStateChanged(ItemEvent evt) {
+		if (evt.getSource() instanceof CountryMenuItem) {
+			CountryMenuItem selectedItem = (CountryMenuItem) evt.getSource();
+			selectedItem.setSelected(true);
+
+			if (selectedItem.isSelected() == true) {
+				Country tempCountry = new Country(selectedItem.getName());
+				this.graphViewCountries.add(this.allCountries.contains(tempCountry));
+			}
 		}
+	}
 
-
-	public void initializeGraphView(){
+	/**
+	 * Creates the GraphView and LegendPanel by creating a frame and adding the
+	 * panels to it. GraphView constructor takes a LinkedList of selected
+	 * countries as a parameter.
+	 */
+	public void initializeGraphView() {
 		// Creates and Initializes GraphView and LegendPanel
 		int FRAME_WIDTH = 800;
 		int FRAME_HEIGHT = 600;
@@ -182,17 +157,17 @@ public class TestUI implements ActionListener, ItemListener {
 		JLabel graphLabel = new JLabel("Graph");
 		myPlots.add(graphLabel);
 
-		//Creates scrollbars for GraphView
+		// Creates scrollbars for GraphView
 		JScrollPane graphScroller = new JScrollPane(myPlots, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		graphScroller.setPreferredSize(new Dimension(580, FRAME_HEIGHT - 30));
 		myPlots.setAutoscrolls(true);
 
-		//adds to frame
+		// adds to frame
 		frame.add(graphScroller);
 		graphScroller.setVisible(true);
-		
-		//Creates a legend panel with legend keys and adds a label
+
+		// Creates a legend panel with legend keys and adds a label
 		LegendPanel graphKey = new LegendPanel(200, 600, Color.white, myPlots);
 		graphKey.setLayout(new BorderLayout());
 		graphKey.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -213,18 +188,17 @@ public class TestUI implements ActionListener, ItemListener {
 		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		frame.setResizable(false);
 		frame.setVisible(true);
-		}
-	//END OF GRAPHVIEW METHOD
-
-
-	@Override
-	public void actionPerformed(ActionEvent evt) {
-	 if(evt.getSource() instanceof JButton){
-		 initializeGraphView(); 
-		}
 	}
 	
-	
-	
-} //END OF TEST CLASS
-       
+
+	/**
+	 * Invoked when an action occurs. Listens to the JButton, and when pressed,
+	 * displays the GraphView and Legend Panel.
+	 */
+	@Override
+	public void actionPerformed(ActionEvent evt) {
+		if (evt.getSource() instanceof JButton) {
+			initializeGraphView();
+		}
+	}
+}
