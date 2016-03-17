@@ -4,6 +4,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -12,12 +15,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.text.html.HTMLDocument.Iterator;
 
-public class TestUI implements ActionListener {
+public class TestUI implements ActionListener, ItemListener {
 
 	int minYear;
 	int maxYear;
-	LinkedList<Country>selectedCountries;
+	LinkedList<Country>checkedCountries = new LinkedList<Country>();
+	LinkedList<Country>graphViewCountries = new LinkedList<Country>();
+	LinkedList<Country>allCountries = new LinkedList<Country>();
 	 
 	public static void main(String[] args) {
 
@@ -51,28 +57,21 @@ public class TestUI implements ActionListener {
 		
 		TestUI application = new TestUI();
 		application.buildCountryList(countries);
-		LinkedList<Country>allCountries = application.buildCountryList(countries);
-		application.createUI(allCountries);
-		//LinkedList<Country>selectedCountries = application.createUI(allCountries);
-		//application.initializeGraphView(selectedCountries);
+		application.createUI();
+		
+} //END OF MAIN
 	
 		
-	} //END OF MAIN
-	
-		
-	public LinkedList<Country>buildCountryList(Country[] countries){
-		LinkedList<Country> allCountries = new LinkedList<Country>();
-		// creates a LinkedList of Country Objects
+	public void buildCountryList(Country[] countries){
 			for (int index = 0; index < countries.length; index++) {
-			allCountries.add(countries[index]);
+			this.allCountries.add(countries[index]);
 		}
-			
-	return allCountries;	
+	
 	
 } //END OF BUILD LIST METHOD
 
 	
-		public LinkedList<Country> createUI(LinkedList<Country>allCountries){
+		public void createUI(){
 		
 		// Creates the UI
 		JFrame UI_menu = new JFrame();
@@ -110,10 +109,18 @@ public class TestUI implements ActionListener {
 		
 
 		UI_menu.add(yearMenuPanel);
-
-		// Creates a new CountryMenu
-		CountryMenu countryMenuPanel = new CountryMenu(300, 600, allCountries);
+		
+		
+		JPanel countryMenuPanel = new JPanel();
+		countryMenuPanel.setSize(new Dimension(300,600));
+		countryMenuPanel.setLayout(new BoxLayout(countryMenuPanel, BoxLayout.Y_AXIS));
 		JLabel countryPrompt = new JLabel("Select countries to graph ");
+		for(int index = 0; index < allCountries.size(); index++){
+			CountryMenuItem newItem = new CountryMenuItem(allCountries.getNodeAtIndex(index).getData().getName(),false);
+			newItem.addItemListener(this);
+			countryMenuPanel.add(newItem);
+		}
+		
 		JScrollPane Scroller = new JScrollPane(countryMenuPanel);
 		Scroller.setPreferredSize(new Dimension(300, 500));
 		Scroller.add(countryPrompt);
@@ -126,24 +133,36 @@ public class TestUI implements ActionListener {
 
 		UI_menu.setVisible(true);
 
-		LinkedList<Country> selectedCountries = new LinkedList<Country>();
-
-		for (int index = 0; index < countryMenuPanel.getCheckedCountries().size(); index++) {
-			Country checkedCountry = new Country(
-					countryMenuPanel.getCheckedCountries().getNodeAtIndex(index).getData());
-			Country foundCountry = allCountries.contains(checkedCountry);
-			if (foundCountry != null) {
-				selectedCountries.add(foundCountry);
-			}
-			else{
-				System.out.println("Not found");
-			}
-			
-		}
-		return selectedCountries;
+		minYear = 1960;
+		maxYear = 2012;
+		
+		
+		
 	} //END OF CREATE GUI METHOD
+		
+		public void itemStateChanged(ItemEvent evt) {
+			if(evt.getSource() instanceof CountryMenuItem){
+				CountryMenuItem selectedItem = (CountryMenuItem)evt.getSource();
+				 	selectedItem.setSelected(true);				    
+				    if(selectedItem.isSelected()==true){
+				   this.checkedCountries.add(new Country(selectedItem.getName()));
+				    
+				}
+				    Country selectedCountry;
+				   Iterator<Country> c_iterator = checkedCountries.iterator();
+				    
+				    while(c_iterator)
+				    {
+				    	selectedCountry = c_iterator.next();
+				    	
+				    	Country foundCountry = this.allCountries.contains(selectedCountry);						
+						this.graphViewCountries.add(foundCountry);
+					}				    
+			}			
+		}
 
-	public void initializeGraphView(LinkedList<Country>selectedCountries){
+
+	public void initializeGraphView(){
 		// Creates and Initializes GraphView and LegendPanel
 		int FRAME_WIDTH = 800;
 		int FRAME_HEIGHT = 600;
@@ -157,7 +176,7 @@ public class TestUI implements ActionListener {
 		int graph_panel_size = 600;
 
 		// Creates an object of type GraphView and adds a label
-		GraphView myPlots = new GraphView(graph_panel_size, FRAME_HEIGHT, selectedCountries);
+		GraphView myPlots = new GraphView(graph_panel_size, FRAME_HEIGHT, this.graphViewCountries);
 		myPlots.setPreferredSize(new Dimension(592, FRAME_HEIGHT)); // 400
 		myPlots.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		JLabel graphLabel = new JLabel("Graph");
@@ -201,16 +220,11 @@ public class TestUI implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent evt) {
 	 if(evt.getSource() instanceof JButton){
-		 System.out.println("Button is pressed");
-	 }
-			
-		
+		 initializeGraphView(); 
+		}
 	}
- 
-
-	public LinkedList<Country> getSelectedCountries() {
-		return selectedCountries;
-	}
-
+	
+	
+	
 } //END OF TEST CLASS
        
