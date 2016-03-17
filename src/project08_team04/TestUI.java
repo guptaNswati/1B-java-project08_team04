@@ -15,12 +15,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 
 public class TestUI implements ActionListener, ItemListener {
-
-	int minYear;
-	int maxYear;
 
 	LinkedList<Country>graphViewCountries = new LinkedList<Country>();
 	LinkedList<Country>allCountries = new LinkedList<Country>();
@@ -60,14 +56,11 @@ public class TestUI implements ActionListener, ItemListener {
 		application.createUI();
 		
 } //END OF MAIN
-	
-		
+			
 	public void buildCountryList(Country[] countries){
 			for (int index = 0; index < countries.length; index++) {
 			this.allCountries.add(countries[index]);
-		}
-	
-	
+		}	
 } //END OF BUILD LIST METHOD
 	
 		public void createUI(){		
@@ -76,56 +69,40 @@ public class TestUI implements ActionListener, ItemListener {
 		UI_menu.setTitle("Graph Settings");
 		UI_menu.setLayout(new BorderLayout());
 		UI_menu.setSize(600, 600);
-	 
-		JPanel yearMenuPanel = new JPanel();
-		yearMenuPanel.setLayout(new BoxLayout(yearMenuPanel, BoxLayout.Y_AXIS));
-		yearMenuPanel.setSize(new Dimension(300, 600));
-		JLabel promptLabel = new JLabel("Select range of years");
-		yearMenuPanel.add(promptLabel);
-
-		JPanel startingYearPanel = new JPanel();
-		startingYearPanel.setSize(new Dimension(300,300));
-		JTextField startingYearField = new JTextField(10);
-		JLabel startYearPrompt = new JLabel("Enter starting year");
-		startingYearPanel.add(startYearPrompt);
-		startingYearPanel.add(startingYearField);
-		
-		JPanel endingYearPanel = new JPanel();
-		endingYearPanel.setSize(new Dimension(300,600));
-		JTextField endingYearField = new JTextField(10);
-		JLabel endYearPrompt = new JLabel("Enter ending year");
-		endingYearPanel.add(endYearPrompt);
-		endingYearPanel.add(endingYearField);
-		
-		yearMenuPanel.add(startingYearPanel);
-		yearMenuPanel.add(endingYearPanel);
-		
-		UI_menu.add(yearMenuPanel);
 		
 		JPanel countryMenuPanel = new JPanel();
-		countryMenuPanel.setSize(new Dimension(300,600));
-		countryMenuPanel.setLayout(new BoxLayout(countryMenuPanel, BoxLayout.Y_AXIS));
-		JLabel countryPrompt = new JLabel("Select countries to graph ");
-		for(int index = 0; index < allCountries.size(); index++){
-			CountryMenuItem newItem = new CountryMenuItem(allCountries.getNodeAtIndex(index).getData().getName(),false);
-			newItem.addItemListener(this);
-			countryMenuPanel.add(newItem);
-		}
+        countryMenuPanel.setSize(new Dimension(300,600));
+        countryMenuPanel.setLayout(new BoxLayout(countryMenuPanel, BoxLayout.Y_AXIS));
+        JLabel countryPrompt = new JLabel("Select countries to graph ");
+        
+        for(int index = 0; index < allCountries.size(); index++)
+        {
+            CountryMenuItem newItem = new CountryMenuItem(allCountries.getNodeAtIndex(index).getData().getName(),false);
+            newItem.addItemListener(this);
+            countryMenuPanel.add(newItem);
+        }
+       
+        JScrollPane Scroller = new JScrollPane(countryMenuPanel);
+        Scroller.setPreferredSize(new Dimension(300, 500));
+        Scroller.add(countryPrompt);
+        UI_menu.add(Scroller, BorderLayout.WEST);
+	 
+		JPanel graphButtonPanel = new JPanel();
+		graphButtonPanel.setLayout(new BoxLayout(graphButtonPanel, BoxLayout.Y_AXIS));
+		graphButtonPanel.setSize(new Dimension(100, 100));
 		
-		JScrollPane Scroller = new JScrollPane(countryMenuPanel);
-		Scroller.setPreferredSize(new Dimension(300, 500));
-		Scroller.add(countryPrompt);
-		UI_menu.add(Scroller, BorderLayout.WEST);
+		JLabel promptLabel = new JLabel("Select range of years");
+		
+		graphButtonPanel.add(promptLabel);		
+		
+		UI_menu.add(graphButtonPanel);	
 
 		JButton graphButton = new JButton("Graph");
 		graphButton.setPreferredSize(new Dimension(20, 25));
 		graphButton.addActionListener(this);
-		yearMenuPanel.add(graphButton);
+		graphButtonPanel.add(graphButton);
 
 		UI_menu.setVisible(true);
-
-		minYear = 1960;
-		maxYear = 2012;
 				
 	} //END OF CREATE GUI METHOD
 		
