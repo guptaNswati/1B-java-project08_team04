@@ -1,7 +1,7 @@
 package project08_team04;
 /**
  * @author Team04
- * @Class [Maps the cellular data of a country to the width and height of the panel]
+ * @Class [Maps the cellular data of a country to the width and height of the panel. And also shows the subscription data when user clicks on the plotted points]
  */
 import java.awt.Font;
 import java.awt.Graphics;
@@ -53,8 +53,10 @@ public class GraphView extends JPanel implements MouseInputListener
 
     private LinkedList<Legend> listOfLegends;
     
+    // point for capturing mouse clicks
     Point point = null;
     
+    // label of the selected point
     private JLabel label;
 
     /**
@@ -65,8 +67,10 @@ public class GraphView extends JPanel implements MouseInputListener
      */
     GraphView(int width, int height, LinkedList<Country> countries)
     {
-      addMouseListener(this);
-      addMouseMotionListener(this);        
+      // adding MouseListener to this GraphView Object
+        addMouseListener(this);      
+        addMouseMotionListener(this);  
+        
         this.width = width;
         this.height = height;
 
@@ -77,6 +81,8 @@ public class GraphView extends JPanel implements MouseInputListener
         this. plottedYmax = MARGIN; 
 
         font = new Font("Serif", Font.PLAIN, 9); 
+        
+        label = new JLabel();       
 
         // using the subscriptions of one country to determine the starting year (dataMinX) and ending year (dataMaxX)
         this.dataMinX = countries.getNodeAtIndex(0).getData().getMinYear();
@@ -154,8 +160,8 @@ public class GraphView extends JPanel implements MouseInputListener
             this.listOfLegends.add(legendKey);       
 
             counter_1++;
-        }        
-        label = new JLabel();       
+        } 
+       
     }
 
     public LinkedList<PlottedDataSet> getListOfCountryDataPoints() { return this.listOfCountryDataPoints; }  
@@ -176,6 +182,9 @@ public class GraphView extends JPanel implements MouseInputListener
         return plottedMin + (plottedMax - plottedMin) * ((value - dataMin) / (dataMax- dataMin));
     }
 
+    /**
+     * captures the location of the point on which mouse is clicked on this graph view event
+     */
     public void mouseClicked(MouseEvent e) 
     { 
         int x = e.getX();
@@ -185,11 +194,17 @@ public class GraphView extends JPanel implements MouseInputListener
         {
             point = new Point(x, y);
         }
-        else       
+        else  
+            
         this.updatePoint(x, y);
         this.repaint();
     }
     
+    /**
+     * updates the location of clicked points
+     * @param x [type: int, x coordinate of the point ]
+     * @param y [type: int, y, coordinate of this point]
+     */
     public void updatePoint(int x, int y) 
     {
         point.x = x;
@@ -198,7 +213,8 @@ public class GraphView extends JPanel implements MouseInputListener
        
     /**
      * First draws the x-axis and y-axis, names them
-     * then draws the points and their values
+     * then draws the points
+     * finally when user clicks on those points show their values
      */
     protected void paintComponent(Graphics g)
     {
@@ -235,18 +251,22 @@ public class GraphView extends JPanel implements MouseInputListener
                         (int)currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getY(), 
                         POINT_SIZE, POINT_SIZE);
                 
+                // first checks if point is not null and then 
                 if (this.point != null)
-                {                    
+                {                 
+                    // the range of clicked point and its closest plotted point and if its less than 6, plot the original values of that comparison point
                     if ((Math.abs(this.point.getX() - currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getMappedX()) < 6))
                     {                    
                         this.label.setText(currentDataPoints.getDataPoints().getNodeAtIndex(i).getData().getLabel());    
                         this.label.setLocation((int)this.point.getX(), (int)this.point.getY());
                     }
+                    // finally add the label on panel
                     add(label);
                 }                           
             }  
         }        
      }
+    // unused methods of interface MouseInput Listener
     public void mouseMoved(MouseEvent e) { }
     public void mousePressed(MouseEvent e) { }
     public void mouseReleased(MouseEvent e) { } 
